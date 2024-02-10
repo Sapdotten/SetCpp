@@ -2,7 +2,6 @@
 #define INCLUDE_SET_H
 #include "set.h"
 
-#include "cmath"
 #include "iostream"
 namespace MySet {
 Node::Node(int value) {
@@ -162,7 +161,6 @@ bool Node::erase(int key, Node*& node) {
     node = this->deleteNode();
     return true;
   }
-  Node* temp;
   if (key < this->value) {
     if (this->left)
       return this->left->erase(key, this->left);
@@ -177,6 +175,20 @@ bool Node::erase(int key, Node*& node) {
   }
 }
 
+bool Node::contains(int key) const {
+  if (this->value == key) return true;
+  if (key < this->value) {
+    if (this->left)
+      return this->left->contains(key);
+    else
+      return false;
+  }
+  if (this->right)
+    return this->right->contains(key);
+  else
+    return false;
+}
+
 Set::Set() { this->root = nullptr; }
 Set::Set(const Set& other) { this->root = new Node(*(other.root)); }
 void Set::swaps(Set& other) { std::swap(this->root, other.root); }
@@ -185,11 +197,29 @@ Set Set::operator=(const Set& other) {
   this->swaps(copy);
   return *(this);
 }
-void Set::print() const { this->root->print(); }
+void Set::print() const {
+  if (this->root)
+    this->root->print();
+  else
+    std::cout << "\nThe set is empty";
+}
 
-bool Set::insert(int key) { return this->root->insert(key, this->root); }
+bool Set::insert(int key) {
+  if (this->root)
+    return this->root->insert(key, this->root);
+  else {
+    this->root = new Node(key);
+    return true;
+  }
+}
 
 Set::~Set() { delete this->root; }
+bool Set::contains(int key) const {
+  return this->root ? this->root->contains(key) : false;
+}
 
+bool Set::erase(int key) {
+  return this->root ? this->root->erase(key, this->root) : false;
+}
 }  // namespace MySet
 #endif

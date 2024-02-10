@@ -45,8 +45,6 @@ class Set {
   bool contains(int key) const;
   bool erase(int key);
   ~Set();
-
-  
 };
 
 }  // namespace MySet
