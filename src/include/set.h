@@ -19,8 +19,13 @@ class Node {
   void print() const;
   Node* balanceTree();
   bool insert(int key, Node*& node);
+  bool erase(int key, Node*& node);
+  Node* deleteNode();
+  bool contains(int key) const;
   void calculateHeight();
   int bfactor();
+  int getDeleteMinimum(Node*& node);
+  int getDeleteMaximum(Node*& node);
   Node* smallLeftRotate();
   Node* smallRightRotate();
   Node* bigLeftRotate();

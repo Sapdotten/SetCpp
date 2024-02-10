@@ -118,13 +118,63 @@ Node* Node::smallRightRotate() {
   return temp;
 }
 
-Node* Node::bigLeftRotate() { this->right = this->right->smallLeftRotate(); 
-return this->smallLeftRotate();
+Node* Node::bigLeftRotate() {
+  this->right = this->right->smallLeftRotate();
+  return this->smallLeftRotate();
 }
 
 Node* Node::bigRightRotate() {
   this->left = this->left->smallLeftRotate();
   return this->smallRightRotate();
+}
+
+int Node::getDeleteMinimum(Node*& node) {
+  if (this->left) return this->left->getDeleteMinimum(this->left);
+  node = this->right;
+  int min = this->value;
+  delete this;
+  return min;
+}
+
+int Node::getDeleteMinimum(Node*& node) {
+  if (this->right) return this->right->getDeleteMaximum(this->right);
+  node = this->left;
+  int max = this->value;
+  delete this;
+  return max;
+}
+
+Node* Node::deleteNode() {
+  if (this->right) {
+    this->value = this->right->getDeleteMinimum(this->right);
+  } else if (this->left)
+    this->value = this->left->getDeleteMaximum(this->left);
+  else {
+    delete this;
+    return nullptr;
+  }
+
+  return this;
+}
+
+bool Node::erase(int key, Node*& node) {
+  if (this->value == key) {
+    node = this->deleteNode();
+    return true;
+  }
+  Node* temp;
+  if (key < this->value) {
+    if (this->left)
+      return this->left->erase(key, this->left);
+    else
+      return false;
+  }
+  if (key > this->value) {
+    if (this->right)
+      return this->right->erase(key, this->right);
+    else
+      return false;
+  }
 }
 
 Set::Set() { this->root = nullptr; }
