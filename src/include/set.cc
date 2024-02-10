@@ -136,7 +136,7 @@ int Node::getDeleteMinimum(Node*& node) {
   return min;
 }
 
-int Node::getDeleteMinimum(Node*& node) {
+int Node::getDeleteMaximum(Node*& node) {
   if (this->right) return this->right->getDeleteMaximum(this->right);
   node = this->left;
   int max = this->value;
