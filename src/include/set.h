@@ -16,16 +16,18 @@ class Node {
   Node operator=(const Node& other);
   ~Node();
   void swaps(Node& other);
-
+  void print() const;
+  Node* balanceTree();
+  bool insert(int key, Node*& node);
+  void calculateHeight();
+  int bfactor();
+  Node* smallLeftRotate();
+  Node* smallRightRotate();
+  Node* bigLeftRotate();
+  Node* bigRightRotate();
 };
 
 class Set {
-  struct Node {
-    int value;
-    Node *left, *right;
-    short height;
-  };
-
   Node* root;
 
  public:
@@ -39,12 +41,7 @@ class Set {
   bool erase(int key);
   ~Set();
 
- private:
-  void balanceTree();
-  void smallLeftRotate();
-  void smallRightRotate();
-  void bigLeftRotate();
-  void bigRightRotate();
+  
 };
 
 }  // namespace MySet
