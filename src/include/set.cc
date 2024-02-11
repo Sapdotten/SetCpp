@@ -36,14 +36,24 @@ Node Node::operator=(const Node& other) {
 }
 
 Node::~Node() {
-  if (this->left) delete this->left;
-  if (this->right) delete this->right;
+  if (this) {
+    if (this->left) delete this->left;
+    if (this->right) delete this->right;
+  }
 }
 
 void Node::print() const {
-  if (this->left) this->left->print();
-  std::cout << this->value << ' ';
-  if (this->right) this->right->print();
+  if (this->left) {
+    std::cout << '(';
+    this->left->print();
+    std::cout << ')';
+  }
+  std::cout << this->value;
+  if (this->right) {
+    std::cout << '(';
+    this->right->print();
+    std::cout << ')';
+  }
 }
 
 bool Node::insert(int key, Node*& node) {
@@ -56,7 +66,7 @@ bool Node::insert(int key, Node*& node) {
       this->left = new Node(key);
     }
   }
-  if (key > this->value) {
+  else if (key > this->value) {
     if (this->right)
       isKeyInserted = this->right->insert(key, this->right);
     else {
@@ -64,10 +74,10 @@ bool Node::insert(int key, Node*& node) {
       this->right = new Node(key);
     }
   }
-  if (isKeyInserted) {
+  
     this->calculateHeight();
     node = this->balanceTree();
-  }
+  
   return isKeyInserted;
 }
 
@@ -90,7 +100,7 @@ Node* Node::balanceTree() {
     int left_bfactor = this->left->bfactor();
     if (left_bfactor == 1 || left_bfactor == 0) {
       return this->smallRightRotate();
-    } else if (left_bfactor == -1) {
+    } else if (left_bfactor == 1) {
       return this->bigRightRotate();
     }
   } else if (bfactor == -2) {
@@ -118,7 +128,7 @@ Node* Node::smallRightRotate() {
 }
 
 Node* Node::bigLeftRotate() {
-  this->right = this->right->smallLeftRotate();
+  this->right = this->right->smallRightRotate();
   return this->smallLeftRotate();
 }
 
@@ -128,28 +138,61 @@ Node* Node::bigRightRotate() {
 }
 
 int Node::getDeleteMinimum(Node*& node) {
-  if (this->left) return this->left->getDeleteMinimum(this->left);
+  Node* temp;
+  int min;
+  if (this->left) {
+    min = this->left->getDeleteMinimum(temp);
+    if (temp != this->left) {
+      this->left->right = nullptr;
+      this->left->left = nullptr;
+      delete this -> left;
+      this->left = temp;
+    }
+  } else {
+    min = this->value;
+  }
   node = this->right;
-  int min = this->value;
-  delete this;
   return min;
 }
 
 int Node::getDeleteMaximum(Node*& node) {
-  if (this->right) return this->right->getDeleteMaximum(this->right);
+  Node* temp;
+  int max;
+  if (this->right) {
+    max =  this->right->getDeleteMaximum(temp);
+    if (temp != this->right) {
+      this->right->right = nullptr;
+      this->right->left = nullptr;
+      delete this->right;
+      this->right = temp;
+    }
+  } else {
+    max = this->value;
+  }
   node = this->left;
-  int max = this->value;
-  delete this;
   return max;
 }
 
 Node* Node::deleteNode() {
+  Node* temp;
   if (this->right) {
-    this->value = this->right->getDeleteMinimum(this->right);
-  } else if (this->left)
-    this->value = this->left->getDeleteMaximum(this->left);
+    this->value = this->right->getDeleteMinimum(temp);
+    if (temp != this->right) {
+      this->right->right = nullptr;
+      this->right->left = nullptr;
+      delete this->right;
+      this->right = temp;
+    } 
+  } else if (this->left) {
+    this->value = this->left->getDeleteMaximum(temp);
+    if (temp != this->left) {
+      this->left->right = nullptr;
+      this->left->left = nullptr;
+      delete this->left;
+      this->left = temp;
+    }
+  }
   else {
-    delete this;
     return nullptr;
   }
 
@@ -161,18 +204,36 @@ bool Node::erase(int key, Node*& node) {
     node = this->deleteNode();
     return true;
   }
+  Node* temp;
+  bool flag = false;
   if (key < this->value) {
-    if (this->left)
-      return this->left->erase(key, this->left);
+    if (this->left) {
+      flag = this->left->erase(key, temp);
+      if (!temp) {
+        this->left->right = nullptr;
+        this->left->left = nullptr;
+        delete this->left;
+        this->left = nullptr;
+      }
+    }
+      
     else
       return false;
   }
   if (key > this->value) {
-    if (this->right)
-      return this->right->erase(key, this->right);
+    if (this->right) {
+      flag = this->right->erase(key, temp);
+      if (!temp) {
+        this->right->right = nullptr;
+        this->right->left = nullptr;
+        delete this->right;
+        this->right = nullptr;
+      }
+    }
     else
       return false;
   }
+  return flag;
 }
 
 bool Node::contains(int key) const {
@@ -213,13 +274,23 @@ bool Set::insert(int key) {
   }
 }
 
-Set::~Set() { delete this->root; }
+Set::~Set() { if(this->root) delete this->root; }
 bool Set::contains(int key) const {
   return this->root ? this->root->contains(key) : false;
 }
 
 bool Set::erase(int key) {
-  return this->root ? this->root->erase(key, this->root) : false;
+  bool flag = false;
+  if (this->root) {
+    Node* temp = this->root;
+    flag = this->root->erase(key, temp);
+    if (!temp) {  
+      delete this->root;
+      this->root = nullptr;
+    } else
+      this->root = temp;
+  }
+  return flag;
 }
 }  // namespace MySet
 #endif
