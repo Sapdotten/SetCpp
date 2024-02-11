@@ -61,10 +61,10 @@ bool Node::insert(int key, Node*& node) {
       isKeyInserted = this->right->insert(key, this->right);
     else {
       isKeyInserted = true;
-      this->left = new Node(key);
+      this->right = new Node(key);
     }
   }
-  if (!isKeyInserted) {
+  if (isKeyInserted) {
     this->calculateHeight();
     node = this->balanceTree();
   }
@@ -201,7 +201,7 @@ void Set::print() const {
   if (this->root)
     this->root->print();
   else
-    std::cout << "\nThe set is empty";
+    std::cout << "The set is empty";
 }
 
 bool Set::insert(int key) {
